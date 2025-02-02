@@ -11,6 +11,8 @@ import SwiftUI
 struct Verse: Identifiable {
     let id = UUID()
     let text: String
+    let book: String
+    let chapter: Int
 }
 
 
@@ -56,7 +58,9 @@ class BibleViewModel: ObservableObject {
             }
             
             
-            let versesArray = lines.map { Verse(text: $0.trimmingCharacters(in: .whitespacesAndNewlines)) }
+            let versesArray = lines.map {
+                Verse(text: $0.trimmingCharacters(in: .whitespacesAndNewlines), book: bookAbbr, chapter: startChap)
+            }
 
             
             // 메인스레드에서 UI 업데이트
