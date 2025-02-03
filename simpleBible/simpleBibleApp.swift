@@ -11,7 +11,7 @@ import SwiftUI
 struct simpleBibleApp: App {
     var body: some Scene {
         WindowGroup {
-            BibleView()
+            MainView()
         }
     }
 }

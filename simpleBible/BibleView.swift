@@ -9,13 +9,15 @@ import SwiftUI
 
 
 struct BibleView: View {
+    @Binding var selectedTab: Int
+    
     @StateObject private var viewModel = BibleViewModel()
     
     @State private var selectedBook = bibleBooks[0]
     @State private var selectedChap = 1
     
-    @State private var title = "창세기"
-    @State private var presentChap = 1
+    @State private var title = "성경"
+    @State private var presentChap = 0
     
     var body: some View {
         NavigationView {
@@ -46,7 +48,7 @@ struct BibleView: View {
                     .buttonStyle(.bordered)
                 }
                 List(viewModel.verses) { verse in
-                    Text(verse.text)
+                    Text(verse.content)
                         .padding(.vertical, 4)
                 }
                 .navigationTitle(title + " " + String(presentChap) + "장")
