@@ -12,6 +12,7 @@ struct simpleBibleApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
+                .preferredColorScheme(.light)
         }
     }
 }

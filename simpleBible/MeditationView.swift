@@ -4,7 +4,6 @@
 //
 //  Created by shkim on 2/3/25.
 //
-
 import SwiftUI
 
 struct MeditationView: View {
@@ -16,135 +15,124 @@ struct MeditationView: View {
     @StateObject private var viewModel = BibleViewModel()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        NavigationView {
             ScrollView {
-                // 제목 입력
-                VStack(alignment: .leading) {
-                    Text("묵상 제목")
-                        .font(.headline)
-                    RoundedTextField(placeholder: "제목을 입력하세요", text: $title)
-//                    TextField("제목을 입력하세요", text: $title)
-//                        .padding()
-//                        .background(Color(.systemGray6))
-//                        .cornerRadius(8)
+                SectionCard {
+                    VStack(alignment: .leading, spacing: 20) {
+                        
+                        // 묵상 제목
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("묵상 제목")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            CustomTextField(placeholder: "제목을 입력하세요", text: $title)
+                        }
 
-                }
-                
-                // 날짜 표시
-                VStack(alignment: .leading) {
-                    Text("\(currentDateFormatted())")
-                        .padding(.vertical, 5)
-                        .foregroundColor(.gray)
-                }
-                
-                // 오늘의 말씀
-                VStack(alignment: .leading) {
-                    if let randomVerse = viewModel.randomVerse {
-                        Text("오늘의 말씀")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        RoundedReadOnlyBox(text: "\(randomVerse.book) \(randomVerse.chapter)장 \(randomVerse.verse)절 \n" + randomVerse.content.substring(after: "\(randomVerse.chapter):\(randomVerse.verse) "))
-//                        Text("\(randomVerse.book) \(randomVerse.chapter)장 \(randomVerse.verse)절 \n" + randomVerse.content.substring(after: "\(randomVerse.chapter):\(randomVerse.verse) "))
-//                            .padding()
-//                            .background(Color(.systemGray6))
-//                            .cornerRadius(8)
-//                            .frame(maxWidth: .infinity, alignment: .leading)
+                        // 오늘의 말씀
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("오늘의 말씀")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            
+                            if let randomVerse = viewModel.randomVerse {
+                                Text("\(randomVerse.book) \(randomVerse.chapter)장 \(randomVerse.verse)절\n\(randomVerse.content)")
+                                    .font(.body)
+                                    .padding()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(.white)
+                                    .cornerRadius(8)
+                            } else {
+                                Text("말씀을 불러오는 중입니다...")
+                                    .foregroundColor(.gray)
+                            }
+                        }
+
+                        // 묵상 내용
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("묵상 내용")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            CustomTextEditor(text: $meditationContent, placeholder: "묵상 내용을 입력하세요...")
+                        }
+
+                        // 기도 제목
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("기도 제목")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            CustomTextEditor(text: $prayerRequests, placeholder: "기도 제목을 입력하세요...")
+                        }
+
+                        // 저장 버튼
+                        Button(action: saveMeditation) {
+                            Text("저장하기")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                                .font(.headline)
+                        }
                     }
-                    
+                    .padding()
                 }
-                
-                // 묵상 내용 입력
-                VStack(alignment: .leading) {
-                    Text("묵상 내용")
-                        .font(.headline)
-                    AutoGrowingTextEditor(text: $meditationContent, placeholder: "묵상 내용을 입력하세요...")
-//                    TextEditor(text: $meditationContent)
-//                        .font(.system(size: 14))
-//                        .frame(height: 130)
-//                        .padding()
-//                        .background(Color(.systemGray6))
-//                        .cornerRadius(8)
-                }
-                
-                // 기도 제목 입력
-                VStack(alignment: .leading) {
-                    Text("기도 제목")
-                        .font(.headline)
-                    AutoGrowingTextEditor(text: $prayerRequests, placeholder: "기도 제목을 입력하세요...")
-//                    TextEditor(text: $prayerRequests)
-//                        .font(.system(size: 14))
-//                        .frame(height: 70)
-//                        .padding()
-//                        .background(Color(.systemGray6))
-//                        .cornerRadius(8)
-                }
-                
-                // 저장 버튼
-                Button(action: saveMeditation) {
-                    Text("저장하기")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .font(.headline)
-                }
-                .padding(.top, 20)
+                .padding()
             }
-            .padding(.horizontal)
-        }
-        .navigationTitle("묵상 기록")
-        .onAppear(perform: viewModel.getRandomBibleVerse)
-        .onTapGesture {
-            UIApplication.shared.endEditing()  // 화면을 탭하면 키보드 숨기기
+            .navigationTitle("묵상 기록")
+            .onAppear(perform: viewModel.getRandomBibleVerse)
+            .onTapGesture {
+                UIApplication.shared.endEditing()
+            }
         }
     }
-    
-    // 현재 날짜를 포맷하는 함수
-    private func currentDateFormatted() -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.locale = Locale(identifier: "ko_KR")  // 한국 날짜 형식
-        return formatter.string(from: Date())
-    }
-    
-    // 묵상 내용을 저장하는 로직 (예제: 콘솔 출력)
+
     private func saveMeditation() {
-        // 실제 저장 로직 (Core Data, 서버 업로드 등)을 여기에 추가
+        print("묵상 기록 저장: {\(title)}, {\(meditationContent)}, {\(prayerRequests)}")
     }
 }
 
+// 텍스트 필드: 깔끔하고 미니멀한 디자인
+struct CustomTextField: View {
+    var placeholder: String
+    @Binding var text: String
+    
+    var body: some View {
+        TextField(placeholder, text: $text)
+            .padding(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.gray, lineWidth: 1)
+            )
+    }
+}
 
-
-// 입력칸 높이 자동 조정
-struct AutoGrowingTextEditor: View {
+// 텍스트 편집기: 깔끔하고 동적 높이 지원
+struct CustomTextEditor: View {
     @Binding var text: String
     var placeholder: String
     @State private var dynamicHeight: CGFloat = 40
     
     var body: some View {
-        VStack (alignment: .leading) {
+        ZStack(alignment: .topLeading) {
+            
             TextEditor(text: $text)
-                .padding(10)
-                .frame(height: max(dynamicHeight, 100))  // 최소 높이 설정
+                .background(.clear)
+                .padding(.horizontal, 4)
+                .cornerRadius(8)
+                .frame(height: dynamicHeight + 40)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.gray, lineWidth: 1)  // 테두리 설정
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray, lineWidth: 1)
                 )
-                .cornerRadius(10)
-//                .overlay(
-//                    Group {
-//                        if text.isEmpty {
-//                            Text(placeholder) 
-//                                .foregroundColor(.gray)
-//                                .padding(15)
-//                                .frame(maxWidth: .infinity, alignment: .topLeading)
-//                        }
-//                    }
-//                )
-                .onChange(of: text, {
+                .onChange(of: text) {
                     recalculateHeight()
-                })
+                }
+            
+            if text.isEmpty {
+                Text(placeholder)
+                    .foregroundColor(.gray)
+                    .padding(8)
+            }
         }
     }
     
@@ -157,29 +145,17 @@ struct AutoGrowingTextEditor: View {
     }
 }
 
-
-// Elements Design: Text Field
-struct RoundedTextField: View {
-    var placeholder: String
-    @Binding var text: String
-
+// 단일 섹션 카드
+struct SectionCard<Content: View>: View {
+    var content: () -> Content
+    
     var body: some View {
-        TextField(placeholder, text: $text)
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(10)
-    }
-}
-
-// Elements Design: Text
-struct RoundedReadOnlyBox: View {
-    var text: String
-
-    var body: some View {
-        Text(text)
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(10)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack {
+            content()
+        }
+        .background(Color(UIColor.secondarySystemBackground))
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
+        .padding(.horizontal)
     }
 }

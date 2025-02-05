@@ -42,7 +42,7 @@ struct ContentView: View {
     }
     
     private func fetchRandomVerse() {
-        bibleViewModel.getRandomBibleVerse()
+//        bibleViewModel.getRandomBibleVerse()
     }
 }
 

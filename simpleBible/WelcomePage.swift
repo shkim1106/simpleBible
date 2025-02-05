@@ -27,9 +27,9 @@ struct WelcomePage: View {
                     Text(todayDateString())
                         .font(.footnote)
                         .foregroundColor(.gray)
-                        Text("오늘의 말씀")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
+                    Text("오늘의 말씀")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
@@ -99,8 +99,13 @@ struct WelcomePage: View {
             }
             .navigationTitle("말씀 묵상")
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear(perform: viewModel.getRandomBibleVerse)
+            .onAppear(perform: {
+                viewModel.getRandomBibleVerse()
+            })
+            
         }
+        
+        
     }
     
     /// 오늘 날짜를 "2025년 2월 2일" 형태로 반환하는 간단한 함수 (예시)
