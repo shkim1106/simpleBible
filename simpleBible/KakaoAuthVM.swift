@@ -43,16 +43,16 @@ class KakaoAuthVM: ObservableObject {
     }
     
     @MainActor
-    func getProfileNickName() {
+    func getProfile() {
         Task {
-            userProfile = await handleKakaoProfileNickname()
+            userProfile = await handleKakaoProfile()
         }
     }
     
     
     // 카카오 프로필 정보 가져오는 함수
     @MainActor
-    func handleKakaoProfileNickname() async -> Profile {
+    func handleKakaoProfile() async -> Profile {
         await withCheckedContinuation { continuation in
             UserApi.shared.me { (user, error) in
                 if let error = error {
@@ -87,7 +87,7 @@ class KakaoAuthVM: ObservableObject {
                     // 성공 시 동작 구현
                     _ = oauthToken
                     continuation.resume(returning: true)
-                    self.getProfileNickName()
+                    self.getProfile()
                 }
             }
         }
@@ -108,7 +108,7 @@ class KakaoAuthVM: ObservableObject {
                     
                     // 성공 시 동작 구현
                     _ = oauthToken
-                    self.getProfileNickName()
+                    self.getProfile()
                 }
             }
         }
@@ -129,7 +129,7 @@ class KakaoAuthVM: ObservableObject {
                 else {
                     print("logout() success.")
                     continuation.resume(returning: true)
-                    self.getProfileNickName()
+                    self.getProfile()
                 }
             }
         }

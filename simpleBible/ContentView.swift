@@ -10,7 +10,7 @@ import KakaoSDKCommon
 import KakaoSDKAuth
 import KakaoSDKUser
 
-
+@MainActor
 struct ContentView: View {
     @Binding var selectedTab: Int
     
