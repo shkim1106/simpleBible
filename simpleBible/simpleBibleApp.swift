@@ -10,6 +10,7 @@ import SwiftUI
 import KakaoSDKCommon
 import KakaoSDKAuth
 
+
 @main
 struct simpleBibleApp: App {
     init() {

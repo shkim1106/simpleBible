@@ -10,10 +10,17 @@ import KakaoSDKCommon
 import KakaoSDKAuth
 import KakaoSDKUser
 
+struct Profile: Identifiable {
+    let id: Int64
+    var nickName: String
+    var profileImageUrl: URL?
+}
+
+
 class KakaoAuthVM: ObservableObject {
     
     @Published var isLoggedIn: Bool = false
-    @Published var nickName: String = "이름을 불러올 수 없습니다."
+    @Published var userProfile = Profile(id: 0, nickName: "Please Login First", profileImageUrl: URL(string: "https://www.a.com"))
     
     @MainActor
     func kakaoLogout() {
@@ -38,26 +45,30 @@ class KakaoAuthVM: ObservableObject {
     @MainActor
     func getProfileNickName() {
         Task {
-            nickName = await handleKakaoProfileNickname()
+            userProfile = await handleKakaoProfileNickname()
         }
     }
     
+    
+    // 카카오 프로필 정보 가져오는 함수
     @MainActor
-    func handleKakaoProfileNickname() async -> String {
+    func handleKakaoProfileNickname() async -> Profile {
         await withCheckedContinuation { continuation in
             UserApi.shared.me { (user, error) in
                 if let error = error {
                     print(error)
-                    continuation.resume(returning: "이름을 불러오지 못했습니다.")
+                    let emptyProfile = Profile(id: 0, nickName: "error", profileImageUrl: nil)
+                    continuation.resume(returning: emptyProfile)
                 } else {
                     print("me() success.")
-                    let nickName = user?.kakaoAccount?.profile?.nickname ?? "이름을 불러오지 못했습니다."
-                    print(nickName)
-                    continuation.resume(returning: nickName)
+                    let id = user?.id ?? 0
+                    let nickName = user?.kakaoAccount?.profile?.nickname ?? "unknown"
+                    let loggedInProfile = Profile(id: id, nickName: nickName, profileImageUrl: user?.kakaoAccount?.profile?.profileImageUrl)
+                    continuation.resume(returning: loggedInProfile)
                 }
             }
         }
-    }
+    } // handleKakoProfileNickname()
     
     
     
@@ -126,4 +137,3 @@ class KakaoAuthVM: ObservableObject {
         
     } // handleKakaoLogout()
 }
-
