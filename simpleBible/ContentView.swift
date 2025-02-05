@@ -6,43 +6,34 @@
 //
 
 import SwiftUI
+import KakaoSDKCommon
+import KakaoSDKAuth
+import KakaoSDKUser
 
 struct ContentView: View {
     @Binding var selectedTab: Int
     
+    @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
+    @State private var profileName: String = "로그인 이름"
     
-    @StateObject private var bibleViewModel = BibleViewModel()
+    let logInStatusInfo: (Bool) -> String = { isLoggedIn in
+        return isLoggedIn ? "로그인 성공" : "로그아웃 완료"
+    }
     
     var body: some View {
         VStack {
-            if let randomVerse = bibleViewModel.randomVerse {
-                VStack {
-                    Text("\(randomVerse.book) \(randomVerse.chapter):\(randomVerse.verse)")
-                        .font(.headline)
-                        .padding(.bottom, 5)
-                    Text(randomVerse.content)
-                        .font(.body)
-                        .padding()
-                }
-            } else {
-                Text("랜덤 성경 구절을 불러오는 중...")
-                    .padding()
-            }
-            
-            Button(action: fetchRandomVerse) {
-                Text("랜덤 성경 구절 가져오기")
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
+            Text(logInStatusInfo(kakaoAuthVM.isLoggedIn))
+                .padding()
+            Text(kakaoAuthVM.nickName)
+            Button("카카오 로그인", action: {
+                kakaoAuthVM.kakaoLogin()
+            })
+            .padding()
+            Button("카카오 로그아웃", action: {
+                kakaoAuthVM.kakaoLogout()
+            })
             .padding()
         }
-        .onAppear(perform: fetchRandomVerse)
-    }
-    
-    private func fetchRandomVerse() {
-//        bibleViewModel.getRandomBibleVerse()
     }
 }
 
