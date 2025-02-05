@@ -8,10 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		1EDAA4F12D530C8E00BDB9CA /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1EDAA4F02D530C8E00BDB9CA /* KakaoSDK */; };
+		1EDAA4F82D53105800BDB9CA /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 1EDAA4F72D53105800BDB9CA /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1E6A13F32D4D2B6200A8DB28 /* simpleBible.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = simpleBible.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1EDAA4F72D53105800BDB9CA /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -50,6 +52,7 @@
 		1E6A13EA2D4D2B6200A8DB28 = {
 			isa = PBXGroup;
 			children = (
+				1EDAA4F72D53105800BDB9CA /* .gitignore */,
 				1E6A13F52D4D2B6200A8DB28 /* simpleBible */,
 				1E6A13F42D4D2B6200A8DB28 /* Products */,
 			);
@@ -131,6 +134,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EDAA4F82D53105800BDB9CA /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
