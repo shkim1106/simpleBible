@@ -11,6 +11,9 @@ struct WelcomePage: View {
     @Binding var selectedTab: Int
     
     @StateObject private var viewModel = BibleViewModel()
+    @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
+    
+    @State private var isCopied: Bool = false
     
     let meditationNote: String =
     """
@@ -27,9 +30,68 @@ struct WelcomePage: View {
                     Text(todayDateString())
                         .font(.footnote)
                         .foregroundColor(.gray)
-                    Text("오늘의 말씀")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+                    HStack {
+                        Text("오늘의 말씀")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        HStack (alignment: .center) {
+                            // 로그인 상태에 따라 프로필 이미지 또는 로그인 버튼 표시
+                            if kakaoAuthVM.isLoggedIn, let profileUrl = kakaoAuthVM.userProfile.profileImageUrl {
+                                // 로그인 후 프로필 이미지
+                                AsyncImage(url: profileUrl) { phase in
+                                    switch phase {
+                                    case .empty:
+                                        ProgressView()
+                                            .padding()
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 45, height: 45)
+                                            .clipShape(Circle())
+                                            .shadow(radius: 3)
+                                            .onTapGesture {
+                                                kakaoAuthVM.kakaoLogout()
+                                            }  // 프로필 이미지 탭 시 로그아웃
+                                    case .failure:
+                                        Image(systemName: "person.crop.circle.fill")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 45, height: 45)
+                                            .foregroundColor(.gray)
+                                            .onTapGesture {
+                                                kakaoAuthVM.kakaoLogout()
+                                            }
+                                    @unknown default:
+                                        Image(systemName: "person.crop.circle.fill")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 45, height: 45)
+                                            .foregroundColor(.gray)
+                                            .onTapGesture {
+                                                kakaoAuthVM.kakaoLogout()
+                                            }
+                                    }
+                                }
+                            } else {
+                                // 로그인 전 버튼
+                                Button(action: {
+                                    kakaoAuthVM.kakaoLogin()
+                                }) {
+                                    Text("Kakao LogIn")
+                                        .fontWeight(.bold)
+                                        .padding(10)
+                                        .background(Color(hex: "ffe812"))  // #ffe812
+                                        .foregroundColor(.black)
+                                        .cornerRadius(8)
+                                }
+                            }
+                        }
+                        .frame(height: 45)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
@@ -37,10 +99,46 @@ struct WelcomePage: View {
                 // 오늘의 말씀 카드
                 VStack(alignment: .leading, spacing: 10) {
                     if let randomVerse = viewModel.randomVerse {
-                        Text("\(randomVerse.book) \(randomVerse.chapter)장 \(randomVerse.verse)절")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                        Text(randomVerse.content.substring(after: "\(randomVerse.chapter):\(randomVerse.verse) "))
+                        let verseTitle = "\(randomVerse.book) \(randomVerse.chapter)장 \(randomVerse.verse)절"
+                        let verseContent = randomVerse.content.substring(after: "\(randomVerse.chapter):\(randomVerse.verse) ")
+                        HStack {
+                            Text(verseTitle)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                UIPasteboard.general.string = verseTitle + "\n" + verseContent
+                                withAnimation {
+                                    isCopied = true
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    withAnimation {
+                                        isCopied = false
+                                    }
+                                }
+                            }) {
+                                if isCopied {
+                                    Image(systemName: "checkmark")  // 작은 복사 아이콘
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 15, height: 15)
+                                        .foregroundColor(.gray)
+                                    
+                                } else {
+                                    Image(systemName: "doc.on.doc")  // 작은 복사 아이콘
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 17, height: 17)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .frame(alignment: .trailing)
+                        }
+                        Text(verseContent)
                             .font(.body)
                         
                         Divider()
@@ -102,6 +200,14 @@ struct WelcomePage: View {
             .onAppear(perform: {
                 viewModel.getRandomBibleVerse()
             })
+            .onChange(of: kakaoAuthVM.isLoggedIn) {
+                if kakaoAuthVM.isLoggedIn {
+                    viewModel.getRandomBibleVerse()
+                }
+            }
+            .onChange(of: selectedTab) {
+                viewModel.getRandomBibleVerse()
+            }
             
         }
         

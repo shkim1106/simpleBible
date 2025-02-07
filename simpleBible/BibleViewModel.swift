@@ -163,6 +163,8 @@ class BibleViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {  // 데이터 준비를 위해 약간의 딜레이
             guard !self.verses.isEmpty else {
                 print("구절을 불러오지 못했습니다.")
+                print("다시 시도합니다")
+                self.getRandomBibleVerse()
                 return
             }
             
@@ -172,6 +174,7 @@ class BibleViewModel: ObservableObject {
                                          book: randomSelection.book.kor,
                                          chapter: randomSelection.chapter,
                                          verse: randomVerse.verse)
+                print("오늘의 구절 불러오기 성공")
             }
         }
     }
