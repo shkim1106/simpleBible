@@ -22,6 +22,48 @@ class KakaoAuthVM: ObservableObject {
     @Published var isLoggedIn: Bool = false
     @Published var userProfile = Profile(id: 0, nickName: "Please Login First", profileImageUrl: URL(string: "https://www.a.com"))
     
+    
+    @MainActor
+    func autoLogin() {
+        if AuthApi.hasToken() {
+            UserApi.shared.accessTokenInfo { _, error in
+                if let error = error {
+                    print("토큰 확인 에러 \(error.localizedDescription)")
+                    Task {
+                        self.kakaoLogin()
+                    }
+                } else {
+                    // 토큰 유효성 체크 성공 (필요 시 토큰 갱신됨)
+                    print("토큰 확인 성공")
+                    UserApi.shared.me { user, error in
+                        if let error = error {
+                            print("기존회원 로그인 에러 발생 \(error.localizedDescription)")
+                        } else {
+                            print("기존 회원 로그인 진행 ")
+                            self.getProfile()
+                            self.isLoggedIn = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    // 외부용 메인 로그인 메서드
+    @MainActor
+    func kakaoLogin() {
+        Task {
+            if (UserApi.isKakaoTalkLoginAvailable()) {
+                print("카카오톡 설치됨")
+                isLoggedIn = await handleKakaoAppLogin()
+            } else {
+                print("카카오톡 미설치, 웹 로그인 진행")
+                isLoggedIn = await handleKakaoWebLogin()
+            }
+        }
+    }
+    
     @MainActor
     func kakaoLogout() {
         Task {
@@ -31,16 +73,6 @@ class KakaoAuthVM: ObservableObject {
         }
     }
     
-    @MainActor
-    func kakaoLogin() {
-        Task {
-            if (UserApi.isKakaoTalkLoginAvailable()) {
-                isLoggedIn = await handleKakaoAppLogin()
-            } else {
-                isLoggedIn = await handleKakaoWebLogin()
-            }
-        }
-    }
     
     @MainActor
     func getProfile() {
@@ -57,10 +89,10 @@ class KakaoAuthVM: ObservableObject {
             UserApi.shared.me { (user, error) in
                 if let error = error {
                     print(error)
-                    let emptyProfile = Profile(id: 0, nickName: "error", profileImageUrl: nil)
+                    let emptyProfile = Profile(id: 0, nickName: "unknown", profileImageUrl: nil)
                     continuation.resume(returning: emptyProfile)
                 } else {
-                    print("me() success.")
+                    print("프로필 가져오기 성공")
                     let id = user?.id ?? 0
                     let nickName = user?.kakaoAccount?.profile?.nickname ?? "unknown"
                     let loggedInProfile = Profile(id: id, nickName: nickName, profileImageUrl: user?.kakaoAccount?.profile?.profileImageUrl)
@@ -83,7 +115,7 @@ class KakaoAuthVM: ObservableObject {
                     continuation.resume(returning: false)
                 }
                 else {
-                    print("loginWithKakaoTalk() success.")
+                    print("카카오톡 로그인 성공")
                     // 성공 시 동작 구현
                     _ = oauthToken
                     continuation.resume(returning: true)
@@ -104,7 +136,7 @@ class KakaoAuthVM: ObservableObject {
                     print(error)
                 }
                 else {
-                    print("loginWithKakaoAccount() success.")
+                    print("카카오 계정 로그인 성공")
                     
                     // 성공 시 동작 구현
                     _ = oauthToken
@@ -127,7 +159,7 @@ class KakaoAuthVM: ObservableObject {
                     continuation.resume(returning: false)
                 }
                 else {
-                    print("logout() success.")
+                    print("로그아웃 성공")
                     continuation.resume(returning: true)
                     self.getProfile()
                 }
