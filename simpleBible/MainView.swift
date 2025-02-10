@@ -5,10 +5,16 @@
 //  Created by shkim on 2/2/25.
 //
 import SwiftUI
+import Firebase
 
 struct MainView: View {
+    @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
+    @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
+
+
     @State private var selectedTab: Int = 0
     @State private var isContentReady: Bool = false
+
     
     var body: some View {
         ZStack {
@@ -25,18 +31,17 @@ struct MainView: View {
                             Label("Bible", systemImage: "book")
                         }
                         .tag(1)
-                    
-                    MeditationView(selectedTab: $selectedTab)
+                    DiaryFormView(selectedTab: $selectedTab)
                         .tabItem {
                             Label("Meditation", systemImage: "square.and.pencil")
                         }
                         .tag(2)
-                    
-                    ContentView(selectedTab: $selectedTab)
+
+                    DiaryListView(selectedTab: $selectedTab)
                         .tabItem {
                             Label("TestView", systemImage: "exclamationmark.triangle.fill")
                         }
-                        .tag(10)
+                        .tag(3)
                 }
 //                .transition(.opacity.animation(.easeInOut(duration: 0.5)))  // TabView 트랜지션
             }
@@ -81,6 +86,9 @@ extension MainView {
                         Color(hex: "#556B2F")   // Dark orange
                     ], startPoint: .leading, endPoint: .trailing))
                     .italic()
+            }
+            .onAppear {
+                kakaoAuthVM.autoLogin()
             }
             
             

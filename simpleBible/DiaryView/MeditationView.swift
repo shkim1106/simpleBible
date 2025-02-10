@@ -79,7 +79,6 @@ struct MeditationView: View {
                 .padding()
             }
             .navigationTitle("묵상 기록")
-            .onAppear(perform: viewModel.getRandomBibleVerse)
             .onTapGesture {
                 UIApplication.shared.endEditing()
             }

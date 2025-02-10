@@ -10,6 +10,8 @@ import SwiftUI
 struct WelcomePage: View {
     @Binding var selectedTab: Int
     
+    @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
+    
     @StateObject private var viewModel = BibleViewModel()
     @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
     
@@ -198,27 +200,28 @@ struct WelcomePage: View {
                     }
                 }
                 .padding(.horizontal)
-                
+                Button(action: kakaoAuthVM.kakaoLogout) {
+                    Text("logout")
+                        .fontWeight(.medium)
+                        .padding()
+                        .frame(maxWidth: 100)
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
                 Spacer()
             }
             .navigationTitle("말씀 묵상")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear(perform: {
                 viewModel.getRandomBibleVerse()
-                kakaoAuthVM.autoLogin()
             })
             .onChange(of: kakaoAuthVM.isLoggedIn) {
                 if kakaoAuthVM.isLoggedIn {
                     viewModel.getRandomBibleVerse()
                 }
             }
-            .onChange(of: selectedTab) {
-                viewModel.getRandomBibleVerse()
-            }
-            
         }
-        
-        
     }
     
     /// 오늘 날짜를 "2025년 2월 2일" 형태로 반환하는 간단한 함수 (예시)

@@ -10,6 +10,8 @@ import KakaoSDKCommon
 import KakaoSDKAuth
 import KakaoSDKUser
 
+import FirebaseAuth
+
 struct Profile: Identifiable {
     let id: Int64
     var nickName: String
@@ -18,9 +20,11 @@ struct Profile: Identifiable {
 
 
 class KakaoAuthVM: ObservableObject {
+    @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
     
     @Published var isLoggedIn: Bool = false
-    @Published var userProfile = Profile(id: 0, nickName: "Please Login First", profileImageUrl: URL(string: "https://www.a.com"))
+    @Published var userProfile = Profile(id: 0, nickName: "Please Login First", profileImageUrl: URL(string: "https://www.example.com"))
+    
     
     
     @MainActor
@@ -99,11 +103,56 @@ class KakaoAuthVM: ObservableObject {
                     let nickName = user?.kakaoAccount?.profile?.nickname ?? "unknown"
                     let loggedInProfile = Profile(id: id, nickName: nickName, profileImageUrl: user?.kakaoAccount?.profile?.profileImageUrl)
                     continuation.resume(returning: loggedInProfile)
+                    self.handleFirebaseKakaoLogin { success in
+                        if success {
+                            print("카카오 로그인 및 Firebase Auth 성공!")
+                        } else {
+                            print("로그인 실패")
+                        }
+                    }
                 }
             }
         }
     } // handleKakoProfileNickname()
     
+    
+    
+    
+    /// 카카오 로그인 후 Firebase Auth에 가입/로그인
+        func handleFirebaseKakaoLogin(completion: @escaping (Bool) -> Void) {
+            UserApi.shared.me { user, error in
+                if let error = error {
+                    print("카카오 로그인 에러: \(error.localizedDescription)")
+                    completion(false)
+                } else {
+                    guard let email = user?.kakaoAccount?.email else {
+                        print("카카오 이메일 정보가 없음")
+                        completion(false)
+                        return
+                    }
+                    let kakaoID = "\(user?.id ?? 0)"  // 카카오 고유 ID를 비밀번호로 사용
+                    
+                    // Firebase Auth에 가입하거나 로그인
+                    self.registerOrSignInWithFirebase(email: email, password: kakaoID) { success in
+                        completion(success)
+                    }
+                }
+            }
+        }
+    /// Firebase Auth 가입 또는 로그인 처리
+    private func registerOrSignInWithFirebase(email: String, password: String, completion: @escaping (Bool) -> Void) {
+        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            if let error = error as NSError?, error.code == AuthErrorCode.emailAlreadyInUse.rawValue {
+                // 이메일이 이미 사용 중이라면 로그인 시도
+                Auth.auth().signIn(withEmail: email, password: password) { _, error in
+                    completion(error == nil)
+                }
+            } else {
+                // 새 계정이 성공적으로 만들어졌다면
+                completion(error == nil)
+            }
+        }
+    }
     
     
     // 카카오 로그인 함수
@@ -165,6 +214,13 @@ class KakaoAuthVM: ObservableObject {
                     continuation.resume(returning: true)
                     self.getProfile()
                     self.isLoggedIn = false
+                    // Firebase 로그아웃 시도
+                    do {
+                        try Auth.auth().signOut()
+                        print("Firebase 로그아웃 성공")
+                    } catch let signOutError as NSError {
+                        print("Firebase 로그아웃 실패: \(signOutError.localizedDescription)")
+                    }
                 }
             }
         }

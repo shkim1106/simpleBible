@@ -10,14 +10,23 @@ import SwiftUI
 import KakaoSDKCommon
 import KakaoSDKAuth
 
+import Firebase
+
 
 @main
 struct simpleBibleApp: App {
+    // ViewModel 인스턴스 (전역적으로 사용)
+        @StateObject var firebaseVM = FirebaseVM()
+    
     init() {
         // Kakao SDK 초기화
         let kakaoAppkey = Bundle.main.infoDictionary?["KAKAO_NATIVE_APP_KEY"] ?? ""
         KakaoSDK.initSDK(appKey: kakaoAppkey as! String)
         print("KEY IS: \(kakaoAppkey)")
+        
+        // Firebase 초기화
+        FirebaseApp.configure()
+        print("Firebase 초기화")
     }
     var body: some Scene {
         WindowGroup {
@@ -33,6 +42,7 @@ struct simpleBibleApp: App {
                         }
                     }
                 })  // onOpenURL()을 사용해 커스텀 URL 스킴 처리
+                .environmentObject(firebaseVM)  // ViewModel을 하위 View로 전달
         }
     }
 }
