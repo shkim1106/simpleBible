@@ -29,29 +29,35 @@ class KakaoAuthVM: ObservableObject {
     
     @MainActor
     func autoLogin() {
-        if AuthApi.hasToken() {
-            UserApi.shared.accessTokenInfo { _, error in
-                if let error = error {
-                    print("토큰 확인 에러 \(error.localizedDescription)")
-                    Task {
-                        self.kakaoLogin()
-                    }
-                } else {
-                    // 토큰 유효성 체크 성공 (필요 시 토큰 갱신됨)
-                    print("토큰 확인 성공")
-                    UserApi.shared.me { user, error in
-                        if let error = error {
-                            print("기존회원 로그인 에러 발생 \(error.localizedDescription)")
-                        } else {
-                            print("기존 회원 로그인 진행 ")
-                            self.getProfile()
-                            self.isLoggedIn = true
-                            print("토큰 갱신")
-                            
+        if !isLoggedIn {
+            if AuthApi.hasToken() {
+                UserApi.shared.accessTokenInfo { _, error in
+                    if let error = error {
+                        print("토큰 확인 에러 \(error.localizedDescription)")
+                        Task {
+                            self.kakaoLogin()
+                        }
+                    } else {
+                        // 토큰 유효성 체크 성공 (필요 시 토큰 갱신됨)
+                        print("토큰 확인 성공")
+                        UserApi.shared.me { user, error in
+                            if let error = error {
+                                print("기존회원 로그인 에러 발생 \(error.localizedDescription)")
+                            } else {
+                                print("기존 회원 로그인 진행 ")
+                                self.getProfile()
+                                self.isLoggedIn = true
+                                print("토큰 갱신")
+                                
+                            }
                         }
                     }
                 }
+            } else {
+                print("토큰 없음")
             }
+        } else {
+            print("이미 로그인 상태 입니다")
         }
     }
     

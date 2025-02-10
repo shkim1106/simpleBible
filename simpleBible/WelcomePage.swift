@@ -215,6 +215,7 @@ struct WelcomePage: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear(perform: {
                 viewModel.getRandomBibleVerse()
+                kakaoAuthVM.autoLogin()
             })
             .onChange(of: kakaoAuthVM.isLoggedIn) {
                 if kakaoAuthVM.isLoggedIn {
