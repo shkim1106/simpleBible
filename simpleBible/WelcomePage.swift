@@ -17,8 +17,7 @@ struct WelcomePage: View {
     
     let meditationNote: String =
     """
-    하나님을 우리의 목자로 고백할 때,
-    우리는 풍성함과 평안함을 누릴 수 있습니다.
+    항상 주님의 말씀을 묵상하는 삶을 사는 크리스천이 되도록 합시다
     """
     @State private var showBibleView = false
     
@@ -81,12 +80,10 @@ struct WelcomePage: View {
                                 Button(action: {
                                     kakaoAuthVM.kakaoLogin()
                                 }) {
-                                    Text("Kakao LogIn")
-                                        .fontWeight(.bold)
-                                        .padding(10)
-                                        .background(Color(hex: "ffe812"))  // #ffe812
-                                        .foregroundColor(.black)
-                                        .cornerRadius(8)
+                                    Image("kakao_login_icon")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 90, height: 45)
                                 }
                             }
                         }
@@ -99,7 +96,7 @@ struct WelcomePage: View {
                 // 오늘의 말씀 카드
                 VStack(alignment: .leading, spacing: 10) {
                     if let randomVerse = viewModel.randomVerse {
-                        let verseTitle = "\(randomVerse.book) \(randomVerse.chapter)장 \(randomVerse.verse)절"
+                        let verseTitle = "\(randomVerse.book.kor) \(randomVerse.chapter)장 \(randomVerse.verse)절"
                         let verseContent = randomVerse.content.substring(after: "\(randomVerse.chapter):\(randomVerse.verse) ")
                         HStack {
                             Text(verseTitle)
@@ -108,8 +105,17 @@ struct WelcomePage: View {
                             
                             Spacer()
                             
+                            // 구절 복사 버튼
+                            /* <복사 양식>
+                             
+                             [2025년 2월 9일]
+                             도로 올라와서 자기 부모에게 말하여 가로되 '내가 딤나에서
+                             블레셋 사람의 딸 중 한 여자를 보았사오니 이제 그를 취하여
+                             내 아내를 삼게 하소서' - 사사기 14장 2절
+                             
+                             */
                             Button(action: {
-                                UIPasteboard.general.string = verseTitle + "\n" + verseContent
+                                UIPasteboard.general.string = "[\(todayDateString())]\n\(verseContent) - \(verseTitle)"
                                 withAnimation {
                                     isCopied = true
                                 }

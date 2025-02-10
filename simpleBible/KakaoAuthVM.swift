@@ -42,6 +42,8 @@ class KakaoAuthVM: ObservableObject {
                             print("기존 회원 로그인 진행 ")
                             self.getProfile()
                             self.isLoggedIn = true
+                            print("토큰 갱신")
+                            
                         }
                     }
                 }
@@ -162,6 +164,7 @@ class KakaoAuthVM: ObservableObject {
                     print("로그아웃 성공")
                     continuation.resume(returning: true)
                     self.getProfile()
+                    self.isLoggedIn = false
                 }
             }
         }

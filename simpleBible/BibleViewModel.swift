@@ -20,9 +20,10 @@ struct Book: Identifiable, Hashable {
 struct Verse: Identifiable {
     let id = UUID()
     let content: String    // 성경 구절 텍스트
-    let book: String    // 해당 구절의 성경
+    let book: Book    // 해당 구절의 성경
     let chapter: Int    // 해당 구절의 장
     let verse: Int
+    var isCopied: Bool
 }
 
 let bibleBooks: [Book] = [
@@ -112,8 +113,8 @@ class BibleViewModel: ObservableObject {
     @Published var randomVerse: Verse? = nil  // 랜덤 구절 저장
 
     /// 성경 구절을 비동기적으로 가져오는 함수
-    func fetchVerses(bookAbbr: String, startChap: Int, startVerse: Int, endChap: Int, endVerse: Int) {
-        let urlString = "https://ibibles.net/quote.php?kor-\(bookAbbr)/\(startChap):\(startVerse)-\(endChap):\(endVerse)"
+    func fetchVerses(book: Book, startChap: Int, startVerse: Int, endChap: Int, endVerse: Int) {
+        let urlString = "https://ibibles.net/quote.php?kor-\(book.code)/\(startChap):\(startVerse)-\(endChap):\(endVerse)"
         
         guard let url = URL(string: urlString) else {
             print("URL 생성 실패")
@@ -141,9 +142,10 @@ class BibleViewModel: ObservableObject {
             
             let versesArray = lines.enumerated().map { index, content in
                 Verse(content: content.trimmingCharacters(in: .whitespacesAndNewlines),
-                      book: bookAbbr,
+                      book: book,
                       chapter: startChap,
-                      verse: index + 1)
+                      verse: index + 1,
+                      isCopied: false)
             }
             
             DispatchQueue.main.async {
@@ -157,7 +159,7 @@ class BibleViewModel: ObservableObject {
     func getRandomBibleVerse() {
         let randomSelection = getRandomBibleChapter()
         
-        fetchVerses(bookAbbr: randomSelection.book.code, startChap: randomSelection.chapter, startVerse: 1, endChap: randomSelection.chapter, endVerse: 100)
+        fetchVerses(book: randomSelection.book, startChap: randomSelection.chapter, startVerse: 1, endChap: randomSelection.chapter, endVerse: 100)
         
         // 구절을 비동기적으로 가져온 후 랜덤 선택
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {  // 데이터 준비를 위해 약간의 딜레이
@@ -171,9 +173,10 @@ class BibleViewModel: ObservableObject {
             var generator = SeededGenerator(seed: seedFromCurrentDate())  // 오늘 날짜로 seed 설정
             if let randomVerse = self.verses.randomElement(using: &generator) {
                 self.randomVerse = Verse(content: randomVerse.content,
-                                         book: randomSelection.book.kor,
+                                         book: randomSelection.book,
                                          chapter: randomSelection.chapter,
-                                         verse: randomVerse.verse)
+                                         verse: randomVerse.verse,
+                                         isCopied: false)
                 print("오늘의 구절 불러오기 성공")
             }
         }

@@ -28,7 +28,7 @@ struct MainView: View {
                     
                     MeditationView(selectedTab: $selectedTab)
                         .tabItem {
-                            Label("Meditation", systemImage: "book.pages")
+                            Label("Meditation", systemImage: "square.and.pencil")
                         }
                         .tag(2)
                     
