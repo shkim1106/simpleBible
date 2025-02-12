@@ -12,7 +12,7 @@ struct MeditationView: View {
     @State private var title: String = ""
     @State private var meditationContent: String = ""
     @State private var prayerRequests: String = ""
-    @StateObject private var viewModel = BibleViewModel()
+    @StateObject private var viewModel = BibleVM()
 
     var body: some View {
         NavigationView {

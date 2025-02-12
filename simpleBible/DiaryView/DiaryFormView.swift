@@ -33,19 +33,24 @@ struct DiaryFormView: View {
 
                 TextEditor(text: $content)
                     .frame(height: 150)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(8)
+                    .border(.gray)
+//                    .background(Color(UIColor.secondarySystemBackground))
+//                    .cornerRadius(8)
 
                 Spacer()
 
+                
+                // 한번 클릭으로 작동안할 때 많음
+                // 리소스 처리 시간 이슈인듯
                 Button(action: {
                     firebaseVM.saveDiaryEntry(scripture: scripture, content: content, prayerTitle: prayerTitle)
                     scripture = ""
                     content = ""
                     prayerTitle = ""
                 }) {
-                    Text("저장하기")
+                    Text("기록하기")
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.blue)
@@ -55,7 +60,7 @@ struct DiaryFormView: View {
                 .padding(.top, 10)
             }
             .padding()
-            .navigationTitle("일기 작성하기")
+            .navigationTitle("묵상 기록하기")
         }
         .onTapGesture {
             UIApplication.shared.endEditing()

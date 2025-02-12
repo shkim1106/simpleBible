@@ -12,7 +12,7 @@ struct WelcomePage: View {
     
     @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
     
-    @StateObject private var viewModel = BibleViewModel()
+    @StateObject private var viewModel = BibleVM()
     @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
     
     @State private var isCopied: Bool = false
@@ -200,15 +200,17 @@ struct WelcomePage: View {
                     }
                 }
                 .padding(.horizontal)
-                Button(action: kakaoAuthVM.kakaoLogout) {
-                    Text("logout")
-                        .fontWeight(.medium)
-                        .padding()
-                        .frame(maxWidth: 100)
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
+                
+                // 테스트용 로그아웃 버튼
+//                Button(action: kakaoAuthVM.kakaoLogout) {
+//                    Text("logout")
+//                        .fontWeight(.medium)
+//                        .padding()
+//                        .frame(maxWidth: 100)
+//                        .background(Color.green)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(8)
+//                }
                 Spacer()
             }
             .navigationTitle("말씀 묵상")

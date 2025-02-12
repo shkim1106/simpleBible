@@ -108,7 +108,7 @@ let bibleBooks: [Book] = [
 import SwiftUI
 
 
-class BibleViewModel: ObservableObject {
+class BibleVM: ObservableObject {
     @Published var verses: [Verse] = []  // 일반 구절 리스트
     @Published var randomVerse: Verse? = nil  // 랜덤 구절 저장
 

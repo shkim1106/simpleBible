@@ -10,6 +10,8 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseAuth
 
+import SwiftUI
+
 
 /// ViewModel: Firebase 관련 로직을 담당하는 클래스
 class FirebaseVM: ObservableObject {
@@ -60,6 +62,27 @@ class FirebaseVM: ObservableObject {
             }
         }
     }
+    
+    // Firestore에 묵상을 삭제하는 함수
+    func deleteDiaryEntry(diaryEntry: DiaryEntry) {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("로그인된 유저 없음")
+            return
+        }
+
+        let db = Firestore.firestore()
+        db.collection("diaries").document(userId).collection("entries").document(diaryEntry.id).delete() { error in
+            if let error = error {
+                print("일기 삭제 실패: \(error)")
+            } else {
+                print("일기 삭제 성공!")
+                withAnimation {
+                    self.diaryEntries.remove(at: self.diaryEntries.firstIndex(of: diaryEntry) ?? 0)
+                    self.fetchDiaryEntries()
+                }
+            }
+        }
+    }
 
     // Firestore에서 유저가 쓴 모든 일기를 가져오는 함수
     func fetchDiaryEntries() {
@@ -76,6 +99,7 @@ class FirebaseVM: ObservableObject {
                     print("일기 불러오기 실패: \(error)")
                     self.diaryEntries = []  // 실패 시 빈 배열로 초기화
                 } else {
+                    print("일기 불러오기 성공")
                     self.diaryEntries = snapshot?.documents.compactMap { doc -> DiaryEntry? in
                         let data = doc.data()
                         guard
@@ -86,7 +110,7 @@ class FirebaseVM: ObservableObject {
                         else {
                             return nil
                         }
-                        return DiaryEntry(scripture: scripture, date: timestamp.dateValue(), content: content, prayerTitle: prayerTitle)
+                        return DiaryEntry(id: doc.documentID, scripture: scripture, date: timestamp.dateValue(), content: content, prayerTitle: prayerTitle)
                     } ?? []
                 }
             }

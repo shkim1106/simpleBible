@@ -34,9 +34,6 @@ class KakaoAuthVM: ObservableObject {
                 UserApi.shared.accessTokenInfo { _, error in
                     if let error = error {
                         print("토큰 확인 에러 \(error.localizedDescription)")
-                        Task {
-                            self.kakaoLogin()
-                        }
                     } else {
                         // 토큰 유효성 체크 성공 (필요 시 토큰 갱신됨)
                         print("토큰 확인 성공")

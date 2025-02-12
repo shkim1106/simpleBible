@@ -29,9 +29,25 @@ struct DiaryListView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
+                .transition(.slide)
                 .padding(.vertical, 5)
+                .swipeActions(edge: .trailing) {
+                    // 묵상 삭제 로직 - Firebase
+                    Button("", systemImage: "trash") {
+                        firebaseVM.deleteDiaryEntry(diaryEntry: entry)
+                    }
+                    .tint(.red)
+                }
+                .swipeActions(edge: .leading) {
+                    // 묵상 수정 로직 - DiaryEditView(), Firebase
+                    Button("", systemImage: "square.and.pencil") {
+                        selectedTab = 2
+                    }
+                    .tint(.yellow)
+                }
             }
-            .navigationTitle("나의 일기")
+            .transition(.slide)
+            .navigationTitle("나의 묵상")
             .onAppear {
                 firebaseVM.fetchDiaryEntries()
             }

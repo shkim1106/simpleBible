@@ -8,8 +8,8 @@ import Foundation
 import SwiftUI
 
 /// 일기를 나타내는 모델 구조체
-struct DiaryEntry: Identifiable {
-    let id = UUID()          // 각 일기를 구별할 수 있는 고유 ID
+struct DiaryEntry: Identifiable, Equatable {
+    let id: String           // 각 일기를 구별할 수 있는 고유 ID (Firestore document ID)
     let scripture: String    // 묵상한 말씀
     let date: Date           // 일기 작성 날짜
     let content: String      // 일기 내용

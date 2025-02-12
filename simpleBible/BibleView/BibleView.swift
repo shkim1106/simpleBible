@@ -10,7 +10,7 @@ import SwiftUI
 struct BibleView: View {
     @Binding var selectedTab: Int
     
-    @StateObject private var viewModel = BibleViewModel()
+    @StateObject private var viewModel = BibleVM()
     
     @State private var selectedBook = bibleBooks[0]
     @State private var selectedChap = 1
