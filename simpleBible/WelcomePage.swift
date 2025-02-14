@@ -26,6 +26,9 @@ struct WelcomePage: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
+                
+                let currentVerse = viewModel.randomVerse ?? viewModel.emptyVerse
+                
                 // 상단 날짜 & 타이틀
                 VStack(alignment: .leading, spacing: 5) {
                     Text(todayDateString())
@@ -173,44 +176,57 @@ struct WelcomePage: View {
                 .padding(.horizontal)
                 
                 // 버튼들: 예) 추가 기능으로 이동
-                HStack(spacing: 20) {
-                    Button(action: {
-                        // 예) 묵상 기록 페이지로 이동할 액션
-                        selectedTab = 2
-                    }) {
-                        Text("묵상 기록하기")
+                VStack(spacing: 10) {
+                    NavigationLink(destination: InterpretationView(verse: currentVerse)) {
+                        Text("📜 AI 해석 보기")
                             .fontWeight(.medium)
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(Color.blue)
+                            .background(Color.teal)
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
                     
-                    Button(action: {
-                        selectedTab = 1
-                    }) {
-                        Text("성경 읽기")
-                            .fontWeight(.medium)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
+                    HStack(spacing: 10) {
+                        Button(action: {
+                            // 예) 묵상 기록 페이지로 이동할 액션
+                            selectedTab = 2
+                        }) {
+                            Text("묵상 기록하기")
+                                .fontWeight(.medium)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.cyan)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                        
+                        Button(action: {
+                            selectedTab = 1
+                        }) {
+                            Text("성경 읽기")
+                                .fontWeight(.medium)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.purple)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
                     }
                 }
                 .padding(.horizontal)
                 
+                
                 // 테스트용 로그아웃 버튼
-//                Button(action: kakaoAuthVM.kakaoLogout) {
-//                    Text("logout")
-//                        .fontWeight(.medium)
-//                        .padding()
-//                        .frame(maxWidth: 100)
-//                        .background(Color.green)
-//                        .foregroundColor(.white)
-//                        .cornerRadius(8)
-//                }
+                //                Button(action: kakaoAuthVM.kakaoLogout) {
+                //                    Text("logout")
+                //                        .fontWeight(.medium)
+                //                        .padding()
+                //                        .frame(maxWidth: 100)
+                //                        .background(Color.green)
+                //                        .foregroundColor(.white)
+                //                        .cornerRadius(8)
+                //                }
                 Spacer()
             }
             .navigationTitle("말씀 묵상")
@@ -224,6 +240,7 @@ struct WelcomePage: View {
                     viewModel.getRandomBibleVerse()
                 }
             }
+            
         }
     }
     

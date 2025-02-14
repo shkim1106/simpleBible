@@ -111,6 +111,8 @@ import SwiftUI
 class BibleVM: ObservableObject {
     @Published var verses: [Verse] = []  // 일반 구절 리스트
     @Published var randomVerse: Verse? = nil  // 랜덤 구절 저장
+    
+    @Published var emptyVerse: Verse = Verse(content: "", book: Book(kor: "", eng: "", code: "", chapters: 0), chapter: 0, verse: 0, isCopied: false)
 
     /// 성경 구절을 비동기적으로 가져오는 함수
     func fetchVerses(book: Book, startChap: Int, startVerse: Int, endChap: Int, endVerse: Int) {
