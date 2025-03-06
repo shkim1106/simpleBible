@@ -13,6 +13,7 @@ import SwiftUI
 
 struct DiaryFormView: View {
     @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
+    @Environment(\.dismiss) private var dismiss
     @State private var scripture: String = ""
     @State private var content: String = ""
     @State private var prayerTitle: String = ""
@@ -49,6 +50,7 @@ struct DiaryFormView: View {
                     scripture = ""
                     content = ""
                     prayerTitle = ""
+                    dismiss()
                 }) {
                     Text("기록하기")
                         .frame(maxWidth: .infinity)

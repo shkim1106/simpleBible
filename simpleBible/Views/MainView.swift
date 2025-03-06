@@ -10,9 +10,12 @@ import Firebase
 struct MainView: View {
     @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
     @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
+    @StateObject private var viewModel = BibleVM()
+
 
 
     @State private var selectedTab: Int = 0
+    @State private var showNewEntryForm: Bool = false
     @State private var isContentReady: Bool = false
 
     
@@ -20,28 +23,35 @@ struct MainView: View {
         ZStack {
             if isContentReady {
                 TabView(selection: $selectedTab) {
-                    WelcomePage(selectedTab: $selectedTab)
+                    WelcomePage(selectedTab: $selectedTab, showNewEntryForm: $showNewEntryForm)
                         .tabItem {
                             Label("Home", systemImage: "house")
                         }
                         .tag(0)
                     
-                    BibleView(selectedTab: $selectedTab)
+                    DiaryListView(selectedTab: $selectedTab, showNewEntryForm: $showNewEntryForm)
                         .tabItem {
-                            Label("Bible", systemImage: "book")
-                        }
-                        .tag(1)
-                    DiaryFormView(selectedTab: $selectedTab)
-                        .tabItem {
-                            Label("Meditation", systemImage: "square.and.pencil")
+                            Label("Record", systemImage: "square.and.pencil")
                         }
                         .tag(2)
-
-                    DiaryListView(selectedTab: $selectedTab)
+                    
+                    BibleView(selectedTab: $selectedTab)
                         .tabItem {
-                            Label("TestView", systemImage: "exclamationmark.triangle.fill")
+                            Label("Bible", systemImage: "exclamationmark.triangle.fill")
                         }
-                        .tag(3)
+                        .tag(1)
+                    
+//                    DiaryFormView(selectedTab: $selectedTab)
+//                        .tabItem {
+//                            Label("Meditation", systemImage: "square.and.pencil")
+//                        }
+//                        .tag(2)
+
+//                    LoginView(selectedTab: $selectedTab)
+//                        .tabItem {
+//                            Label("Login", systemImage: "person.crop.circle")
+//                        }
+//                        .tag(4)
                 }
 //                .transition(.opacity.animation(.easeInOut(duration: 0.5)))  // TabView 트랜지션
             }
@@ -79,8 +89,8 @@ extension MainView {
             .ignoresSafeArea()
             VStack {
                 // 중앙 텍스트
-                Text("Dailiy Bible")
-                    .font(.custom("SnellRoundhand", size: 50))
+                Text("QT Today")
+                    .font(.custom("Maplestory OTF Light", size: 20))
                     .foregroundStyle(.linearGradient(colors: [
                         Color(hex: "#000000"),  // Gold for text highlight
                         Color(hex: "#556B2F")   // Dark orange
@@ -89,6 +99,7 @@ extension MainView {
             }
             .onAppear {
                 kakaoAuthVM.autoLogin()
+                viewModel.getRandomBibleVerse()
             }
             
             

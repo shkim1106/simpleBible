@@ -9,6 +9,7 @@ import SwiftUI
 
 struct WelcomePage: View {
     @Binding var selectedTab: Int
+    @Binding var showNewEntryForm: Bool
     
     @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
     
@@ -16,6 +17,7 @@ struct WelcomePage: View {
     @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
     
     @State private var isCopied: Bool = false
+    @State private var showInterpretation: Bool = false
     
     let meditationNote: String =
     """
@@ -24,17 +26,16 @@ struct WelcomePage: View {
     @State private var showBibleView = false
     
     var body: some View {
-        NavigationView {
+        let currentVerse = viewModel.randomVerse ?? viewModel.emptyVerse
+	
+        NavigationStack {
             VStack(spacing: 20) {
-                
-                let currentVerse = viewModel.randomVerse ?? viewModel.emptyVerse
-                
                 // 상단 날짜 & 타이틀
                 VStack(alignment: .leading, spacing: 5) {
                     Text(todayDateString())
                         .font(.footnote)
                         .foregroundColor(.gray)
-                    HStack {
+                    HStack(alignment: .center) {
                         Text("오늘의 말씀")
                             .font(.largeTitle)
                             .fontWeight(.bold)
@@ -177,8 +178,18 @@ struct WelcomePage: View {
                 
                 // 버튼들: 예) 추가 기능으로 이동
                 VStack(spacing: 10) {
-                    NavigationLink(destination: InterpretationView(verse: currentVerse)) {
-                        Text("📜 AI 해석 보기")
+//                    NavigationLink(
+//                        destination: InterpretationView(verse: currentVerse),
+//                        isActive: $showInterpretation
+//                    ) {
+//                        EmptyView() // 링크 자체는 보이지 않게
+//                    }
+//                    .hidden()
+                    Button(action: {
+                         showInterpretation = true   // 버튼 탭 시 화면 전환 플래그 true
+                        
+                    }) {
+                        Text("AI 해석 보기")
                             .fontWeight(.medium)
                             .padding()
                             .frame(maxWidth: .infinity)
@@ -191,6 +202,7 @@ struct WelcomePage: View {
                         Button(action: {
                             // 예) 묵상 기록 페이지로 이동할 액션
                             selectedTab = 2
+                            showNewEntryForm = true
                         }) {
                             Text("묵상 기록하기")
                                 .fontWeight(.medium)
@@ -216,7 +228,6 @@ struct WelcomePage: View {
                 }
                 .padding(.horizontal)
                 
-                
                 // 테스트용 로그아웃 버튼
                 //                Button(action: kakaoAuthVM.kakaoLogout) {
                 //                    Text("logout")
@@ -229,18 +240,28 @@ struct WelcomePage: View {
                 //                }
                 Spacer()
             }
-            .navigationTitle("말씀 묵상")
+            .navigationTitle("큐티한 나")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear(perform: {
-                viewModel.getRandomBibleVerse()
-                kakaoAuthVM.autoLogin()
+                if currentVerse.chapter == 0 {
+                    viewModel.getRandomBibleVerse()
+                }
+                if !kakaoAuthVM.isLoggedIn {
+                    kakaoAuthVM.autoLogin()
+                }
             })
             .onChange(of: kakaoAuthVM.isLoggedIn) {
                 if kakaoAuthVM.isLoggedIn {
                     viewModel.getRandomBibleVerse()
                 }
             }
-            
+            .toolbar(showInterpretation ? .hidden : .visible, for: .tabBar)
+            .navigationDestination(isPresented: $showInterpretation) {
+                InterpretationView(verse: currentVerse)
+                    .onDisappear() {
+                        withAnimation() { showInterpretation = false }
+                    }
+            }
         }
     }
     

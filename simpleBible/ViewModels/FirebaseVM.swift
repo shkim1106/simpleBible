@@ -15,6 +15,12 @@ import SwiftUI
 
 /// ViewModel: Firebase 관련 로직을 담당하는 클래스
 class FirebaseVM: ObservableObject {
+    
+    var reading = [
+        "book": bibleBooks[0],
+        "chapter": 1
+    ] as [String : Any]
+    
     private let kakaoLoginManager = KakaoAuthVM()
 
     /// 현재 유저가 로그인되어 있는지 확인하는 함수
@@ -38,6 +44,70 @@ class FirebaseVM: ObservableObject {
     
     // 사용자의 일기 리스트를 저장하는 Published 변수 (UI와 바인딩)
     @Published var diaryEntries: [DiaryEntry] = []
+    
+    
+    
+    // 마지막으로 읽은 성경 저장
+    func saveReading(selectedBook: Book, selectedChapter: Int) {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("로그인된 유저 없음")
+            return
+        }
+
+        let db = Firestore.firestore()
+//        Book(kor: "창세기",       eng: "Genesis",         code: "Gen",  chapters: 50)
+        let selectedReading = [
+            "kor": selectedBook.kor,
+            "eng": selectedBook.eng,
+            "code": selectedBook.code,
+            "chapters": selectedBook.chapters,
+            "chapter": selectedChapter
+        ] as [String : Any]
+        
+        db.collection("readingList").document(userId).setData(["readingList": selectedReading], merge: true) { error in
+            if let error = error {
+                print("성경 저장 실패: \(error)")
+            } else {
+                print("성경 저장 성공: \(selectedBook.kor) \(selectedChapter)장")
+            }
+        }
+    }
+    
+    // 마지막으로 읽은 성경 불러오기
+    func getReadingList() {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("로그인된 유저 없음")
+            return
+        }
+
+        let db = Firestore.firestore()
+        db.collection("readingList").document(userId).getDocument { snapshot, error in
+            if let error = error {
+                print("성경 정보 가져오기 실패: \(error)")
+            }
+
+            // 해당 문서가 존재하는지, 'readingList' 필드가 있는지 확인
+            guard let data = snapshot?.data(),
+                  let readingList = data["readingList"] as? [String: Any],
+                  let kor = readingList["kor"] as? String,
+                  let eng = readingList["eng"] as? String,
+                  let code = readingList["code"] as? String,
+                  let chapters = readingList["chapters"] as? Int,
+                  let chapter = readingList["chapter"] as? Int else {
+                print("readingList가 비어있거나 필드 형식이 맞지 않습니다.")
+                return
+            }
+            //        Book(kor: "창세기",       eng: "Genesis",         code: "Gen",  chapters: 50)
+            // book, chapter 반환
+            print("성경 정보 가져오기 성공: \(kor) \(chapter)장")
+            let book = Book(kor: kor, eng: eng, code: code, chapters: chapters)
+            self.reading["book"] = book
+            self.reading["chapter"] = chapter
+        }
+    }
+    
+    
+    
     
     // Firestore에 새로운 일기를 저장하는 함수
     func saveDiaryEntry(scripture: String, content: String, prayerTitle: String) {

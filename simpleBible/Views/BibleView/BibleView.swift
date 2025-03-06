@@ -11,7 +11,8 @@ struct BibleView: View {
     @Binding var selectedTab: Int
     
     @StateObject private var viewModel = BibleVM()
-    
+    @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
+
     @State private var selectedBook = bibleBooks[0]
     @State private var selectedChap = 1
     
@@ -35,6 +36,24 @@ struct BibleView: View {
                 Text("\(pendingChap)장")
                     .foregroundColor(pendingBook == selectedBook && pendingChap == selectedChap ? .black : .gray)
                     .contentTransition(.numericText())
+                
+                Spacer()
+                
+                Button("+") {
+                    print("\(selectedBook.kor) \(selectedChap)장)")
+                    print("\(pendingBook.kor) \(pendingChap)장)")
+                    
+                    firebaseVM.getReadingList()
+                    selectedBook = firebaseVM.reading["book"] as! Book
+                    selectedChap = firebaseVM.reading["chapter"] as! Int
+                    pendingBook = selectedBook
+                    pendingChap = selectedChap
+                    
+                    viewModel.fetchVerses(book: selectedBook, startChap: selectedChap, startVerse: 1, endChap: selectedChap, endVerse: 100)
+                }
+                .buttonStyle(.bordered)
+                .foregroundStyle(.black)
+                .padding()
             }
             .padding(.top)
             .padding(.leading)
@@ -88,7 +107,7 @@ struct BibleView: View {
                     // 성경 선택 섹션
                     HStack {
                         Picker(selection: $pendingBook, label: Text("Books")) {
-                            ForEach(bibleBooks) { book in
+                            ForEach(bibleBooks, id: \.self) { book in
                                 Text(book.kor).tag(book)
                             }
                         }
@@ -102,6 +121,7 @@ struct BibleView: View {
                         }
                         .pickerStyle(.wheel)
                         .frame(width: 100, height: 100)
+                        
                         
                         Button("이동") {
                             withAnimation(.easeInOut(duration: 0.5)) {
@@ -132,11 +152,21 @@ struct BibleView: View {
                 
             }
             .onAppear {
-                viewModel.fetchVerses(book: bibleBooks[0], startChap: 1, startVerse: 1, endChap: 1, endVerse: 100)
-                selectedBook = bibleBooks[0]
-                selectedChap = 1
+                firebaseVM.getReadingList()
+                selectedBook = firebaseVM.reading["book"] as! Book
+                selectedChap = firebaseVM.reading["chapter"] as! Int
                 pendingBook = selectedBook
                 pendingChap = selectedChap
+                
+                viewModel.fetchVerses(book: selectedBook, startChap: selectedChap, startVerse: 1, endChap: selectedChap, endVerse: 100)
+            }
+            .onDisappear {
+                firebaseVM.saveReading(selectedBook: selectedBook, selectedChapter: selectedChap)
+                selectedBook = firebaseVM.reading["book"] as! Book
+                selectedChap = firebaseVM.reading["chapter"] as! Int
+                pendingBook = selectedBook
+                pendingChap = selectedChap
+                viewModel.fetchVerses(book: selectedBook, startChap: selectedChap, startVerse: 1, endChap: selectedChap, endVerse: 100)
             }
         }
     }

@@ -21,8 +21,8 @@ struct InterpretationView: View {
         NavigationView {
             VStack {
                 HStack {
-                    Text("📖 **\(verseTitle)**")
-                        .font(.largeTitle)
+                    Text("**\(verseTitle)**")
+                        .font(.title.bold())
                         .padding()
                     
                     Spacer()
@@ -39,8 +39,7 @@ struct InterpretationView: View {
                     }
                     
                 }
-                .padding()
-                
+                .padding(.horizontal)
                 
                 
 
@@ -53,9 +52,11 @@ struct InterpretationView: View {
                             .foregroundColor(.primary)
                             .multilineTextAlignment(.leading)
                             .lineSpacing(6) // 줄 간격 조정
-                            .padding()
+                            .padding(.horizontal)
                     }
-                    .background(Color(UIColor.systemBackground)) // 배경색 유지 (필요시 변경 가능)
+                    .scrollIndicators(.hidden)
+                    .padding(.horizontal)
+                    .ignoresSafeArea(.all)
                 } else {
                     Text("아직 해석이 없습니다.")
                         .foregroundColor(.gray)
@@ -66,8 +67,9 @@ struct InterpretationView: View {
             .onAppear {
                 fetchInterpretation(useCache: true) // 처음에는 캐시된 데이터 확인
             }
+            .background(Color(UIColor.brown.withAlphaComponent(0.15)))
         }
-        
+        .ignoresSafeArea(edges: .bottom)
         
     }
 
@@ -103,7 +105,7 @@ struct InterpretationView: View {
                 ["role": "system", "content": "너는 성경을 해석하는 AI야. 각 내용에 대해 설명해줘."],
                 ["role": "user", "content": "성경 구절: \(verse.book.kor)\(verse.chapter)장 \(verse.verse)절 \n\n1. 말씀이 있는 성경에 대한 배경\n2. 구절의 의미\n3. 현실의 적용점"]
             ],
-            "temperature": 0.7
+            "temperature": 0.3
         ]
 
         guard let jsonData = try? JSONSerialization.data(withJSONObject: requestData) else { return }
