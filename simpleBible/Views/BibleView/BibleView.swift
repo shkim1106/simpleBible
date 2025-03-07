@@ -9,8 +9,9 @@ import SwiftUI
 
 struct BibleView: View {
     @Binding var selectedTab: Int
+    @Binding var showNewEntryForm: Bool
     
-    @StateObject private var viewModel = BibleVM()
+    @EnvironmentObject var viewModel: BibleVM
     @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
 
     @State private var selectedBook = bibleBooks[0]
@@ -28,38 +29,35 @@ struct BibleView: View {
     
     var body: some View {
         
-        VStack(alignment: .leading) {
-            HStack(spacing: 10) {
-                Text(pendingBook.kor)  // 선택한 성경 책 이름
-                    .foregroundColor(pendingBook == selectedBook && pendingChap == selectedChap ? .black : .gray)
-                
-                Text("\(pendingChap)장")
-                    .foregroundColor(pendingBook == selectedBook && pendingChap == selectedChap ? .black : .gray)
-                    .contentTransition(.numericText())
-                
-                Spacer()
-                
-                Button("+") {
-                    print("\(selectedBook.kor) \(selectedChap)장)")
-                    print("\(pendingBook.kor) \(pendingChap)장)")
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(todayDateString())
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                HStack(alignment: .center) {
+                    HStack {
+                        Text(pendingBook.kor)  // 선택한 성경 책 이름
+                            .foregroundColor(pendingBook == selectedBook && pendingChap == selectedChap ? .black : .gray)
+                        
+                        Text("\(pendingChap)장")
+                            .foregroundColor(pendingBook == selectedBook && pendingChap == selectedChap ? .black : .gray)
+                            .contentTransition(.numericText())
+                        
+                    }
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .animation(.easeInOut(duration: 0.5), value: pendingChap)
+                    .animation(.easeInOut(duration: 0.5), value: pendingBook)
                     
-                    firebaseVM.getReadingList()
-                    selectedBook = firebaseVM.reading["book"] as! Book
-                    selectedChap = firebaseVM.reading["chapter"] as! Int
-                    pendingBook = selectedBook
-                    pendingChap = selectedChap
-                    
-                    viewModel.fetchVerses(book: selectedBook, startChap: selectedChap, startVerse: 1, endChap: selectedChap, endVerse: 100)
+                    Rectangle()
+                        .frame(width: 45, height: 45)
+                        .foregroundStyle(.background)
                 }
-                .buttonStyle(.bordered)
-                .foregroundStyle(.black)
-                .padding()
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
             .padding(.top)
-            .padding(.leading)
-            .font(.title.bold())
-            .animation(.easeInOut(duration: 0.5), value: pendingChap)
-            .animation(.easeInOut(duration: 0.5), value: pendingBook)
+            
             
             VStack() {
                 // 성경 구절 리스트
@@ -70,13 +68,25 @@ struct BibleView: View {
                     Text(verse.content)
                         .padding(.vertical, 4)
                         .swipeActions(edge: .leading) {
-                            Button("묵상 기록하기", systemImage: "square.and.pencil") {
-                                selectedTab = 2
+                            // 묵상 기록하기 버튼
+                            Button("", systemImage: "square.and.pencil") {
+                                viewModel.selectedVerse = verseTitle
+                                print("\(viewModel.selectedVerse) 로 묵상을 기록합니다.")
+                                
+                                withAnimation {
+                                    selectedTab = 2
+
+                                }
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    showNewEntryForm.toggle()
+                                }
                             }
                             .tint(.yellow)
                         }
                         .swipeActions(edge: .trailing) {
-                            Button("공유하기", systemImage: "square.and.arrow.up") {
+                            // 공유하기 버튼
+                            Button("", systemImage: "square.and.arrow.up") {
                                 UIPasteboard.general.string = "\(verseContent) - \(verseTitle)"
                                 
                                 // 복사 완료 메시지 표시
@@ -152,23 +162,30 @@ struct BibleView: View {
                 
             }
             .onAppear {
-                firebaseVM.getReadingList()
-                selectedBook = firebaseVM.reading["book"] as! Book
-                selectedChap = firebaseVM.reading["chapter"] as! Int
-                pendingBook = selectedBook
-                pendingChap = selectedChap
-                
+//                firebaseVM.getReadingList()
+//                selectedBook = firebaseVM.reading["book"] as! Book
+//                selectedChap = firebaseVM.reading["chapter"] as! Int
+//                pendingBook = selectedBook
+//                pendingChap = selectedChap
+//                
                 viewModel.fetchVerses(book: selectedBook, startChap: selectedChap, startVerse: 1, endChap: selectedChap, endVerse: 100)
             }
             .onDisappear {
-                firebaseVM.saveReading(selectedBook: selectedBook, selectedChapter: selectedChap)
-                selectedBook = firebaseVM.reading["book"] as! Book
-                selectedChap = firebaseVM.reading["chapter"] as! Int
-                pendingBook = selectedBook
-                pendingChap = selectedChap
-                viewModel.fetchVerses(book: selectedBook, startChap: selectedChap, startVerse: 1, endChap: selectedChap, endVerse: 100)
+//                firebaseVM.saveReading(selectedBook: selectedBook, selectedChapter: selectedChap)
+//                selectedBook = firebaseVM.reading["book"] as! Book
+//                selectedChap = firebaseVM.reading["chapter"] as! Int
+//                pendingBook = selectedBook
+//                pendingChap = selectedChap
+//                viewModel.fetchVerses(book: selectedBook, startChap: selectedChap, startVerse: 1, endChap: selectedChap, endVerse: 100)
             }
         }
+    }
+    /// 오늘 날짜를 "2025년 2월 2일" 형태로 반환하는 간단한 함수 (예시)
+    func todayDateString() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy년 M월 d일"
+        return formatter.string(from: Date())
     }
 }
 

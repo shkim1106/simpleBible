@@ -111,6 +111,7 @@ import SwiftUI
 class BibleVM: ObservableObject {
     @Published var verses: [Verse] = []  // 일반 구절 리스트
     @Published var randomVerse: Verse? = nil  // 랜덤 구절 저장
+    @Published var selectedVerse: String = ""
     
     @Published var emptyVerse: Verse = Verse(content: "", book: Book(kor: "", eng: "", code: "", chapters: 0), chapter: 0, verse: 0, isCopied: false)
 

@@ -17,6 +17,7 @@ import Firebase
 struct simpleBibleApp: App {
     // ViewModel 인스턴스 (전역적으로 사용)
         @StateObject var firebaseVM = FirebaseVM()
+        @StateObject var viewModel = BibleVM()
     
     init() {
         // Kakao SDK 초기화
@@ -43,6 +44,7 @@ struct simpleBibleApp: App {
                     }
                 })  // onOpenURL()을 사용해 커스텀 URL 스킴 처리
                 .environmentObject(firebaseVM)  // ViewModel을 하위 View로 전달
+                .environmentObject(viewModel)  // ViewModel을 하위 View로 전달
         }
     }
 }

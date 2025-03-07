@@ -9,9 +9,9 @@ import Firebase
 
 struct MainView: View {
     @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
-    @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
-    @StateObject private var viewModel = BibleVM()
+    @EnvironmentObject var viewModel: BibleVM
 
+    @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
 
 
     @State private var selectedTab: Int = 0
@@ -35,9 +35,9 @@ struct MainView: View {
                         }
                         .tag(2)
                     
-                    BibleView(selectedTab: $selectedTab)
+                    BibleView(selectedTab: $selectedTab, showNewEntryForm: $showNewEntryForm)
                         .tabItem {
-                            Label("Bible", systemImage: "exclamationmark.triangle.fill")
+                            Label("Bible", systemImage: "book")
                         }
                         .tag(1)
                     
@@ -99,7 +99,7 @@ extension MainView {
             }
             .onAppear {
                 kakaoAuthVM.autoLogin()
-                viewModel.getRandomBibleVerse()
+//                viewModel.getRandomBibleVerse()
             }
             
             

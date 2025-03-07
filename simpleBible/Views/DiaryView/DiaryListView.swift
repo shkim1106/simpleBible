@@ -6,17 +6,30 @@
 //
 
 import SwiftUI
+import Firebase
 
 struct DiaryListView: View {
     @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
-    
+    @EnvironmentObject var viewModel: BibleVM
+
     @Binding var selectedTab: Int
     @Binding var showNewEntryForm: Bool
     
     let maxContentLength: Int = 50
     
+    // 새로 추가: 수정 시 넘길 값을 담을 임시 변수를 만든다.
+    @State private var editingScripture: String = ""
+    @State private var editingContent: String = ""
+    @State private var editingPrayerTitle: String = ""
+    @State private var editingDocId: String = ""
+    @State private var editingDate: Timestamp = Timestamp(date: Date())
+    
+    
+    @State private var showEffect: Double = 1.0
+    
     
     var body: some View {
+        
         NavigationView {
             VStack(spacing: 20) {
                 VStack(alignment: .leading, spacing: 5) {
@@ -27,16 +40,22 @@ struct DiaryListView: View {
                         Text("나의 묵상")
                             .font(.largeTitle)
                             .fontWeight(.bold)
+                            
                         
                         Spacer()
                         
                         HStack (alignment: .center) {
                             Button(action: {
+                                viewModel.selectedVerse = ""
+                                editingContent = ""
+                                editingPrayerTitle = ""
+                                editingDocId = ""
+                                editingDate = Timestamp(date: Date())
                                 showNewEntryForm.toggle()
                             }) {
                                 Image(systemName: "plus.circle.fill")
                                     .resizable()
-//                                    .aspectRatio(contentMode: .fill)
+                                //                                    .aspectRatio(contentMode: .fill)
                                     .scaledToFit()
                                     .scaleEffect(0.8)
                                     .frame(width: 45, height: 45)
@@ -48,6 +67,7 @@ struct DiaryListView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
+                .padding(.top)
                 
                 
                 List(firebaseVM.diaryEntries) { entry in
@@ -63,6 +83,7 @@ struct DiaryListView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
+                    .opacity(entry.content == editingContent ? showEffect : 1)
                     .transition(.slide)
                     .padding(.vertical, 5)
                     .swipeActions(edge: .trailing) {
@@ -75,23 +96,71 @@ struct DiaryListView: View {
                     .swipeActions(edge: .leading) {
                         // 묵상 수정 로직 - DiaryEditView(), Firebase
                         Button("", systemImage: "square.and.pencil") {
-                            selectedTab = 2
+                            // 1) 편집할 내용을 State에 저장
+                            viewModel.selectedVerse = entry.scripture
+                            editingContent = entry.content
+                            editingPrayerTitle = entry.prayerTitle
+                            editingDocId = entry.id
+                            editingDate = Timestamp(date: entry.date)
+                            
+                            // 2) sheet 열기
+                            showNewEntryForm.toggle()
                         }
                         .tint(.yellow)
                     }
+                    .onTapGesture {
+                        // 1) 편집할 내용을 State에 저장
+                        viewModel.selectedVerse = entry.scripture
+                        editingContent = entry.content
+                        editingPrayerTitle = entry.prayerTitle
+                        editingDocId = entry.id
+                        editingDate = Timestamp(date: entry.date)
+                        
+                        // 2) sheet 열기
+                        showNewEntryForm.toggle()
+                    }
+                    
                 }
+                .ignoresSafeArea(.container, edges: .top)
             }
             .transition(.slide)
-            .navigationTitle("나의 묵상")
+//            .navigationTitle("나의 묵상")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showNewEntryForm, onDismiss: {
                 firebaseVM.fetchDiaryEntries()
+                print(viewModel.selectedVerse)
+                viewModel.selectedVerse = ""
+                editingContent = ""
+                editingPrayerTitle = ""
+                editingDocId = ""
+                editingDate = Timestamp(date: Date())
+                // 시트가 닫히면 데이터를 다시 가져오기 전후로 깜빡임
+                                withAnimation(.easeIn(duration: 0.3)) {
+                                    showEffect = 0.0
+                                }
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    
+                                    // 다시 1.0으로 회복하며 깜빡임
+                                    withAnimation(.easeOut(duration: 0.3)) {
+                                        showEffect = 1.0
+                                    }
+                                }
             }) {
-                DiaryFormView(selectedTab: $selectedTab)
+                // 3) sheet 안에 전달
+                DiaryFormView(
+                    selectedTab: $selectedTab,
+                    scripture: viewModel.selectedVerse,
+                    content: editingContent,
+                    prayerTitle: editingPrayerTitle,
+                    docId: editingDocId,
+                    date: editingDate
+                )
             }
             .onAppear {
                 firebaseVM.fetchDiaryEntries()
             }
+            
         }
     }
     

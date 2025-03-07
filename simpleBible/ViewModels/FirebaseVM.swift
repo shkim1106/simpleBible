@@ -110,26 +110,45 @@ class FirebaseVM: ObservableObject {
     
     
     // Firestore에 새로운 일기를 저장하는 함수
-    func saveDiaryEntry(scripture: String, content: String, prayerTitle: String) {
+    func saveDiaryEntry(docId: String, date: Timestamp, scripture: String, content: String, prayerTitle: String) {
         guard let userId = Auth.auth().currentUser?.uid else {
             print("로그인된 유저 없음")
             return
         }
 
         let db = Firestore.firestore()
-        let diaryEntry = [
+        let diaryEntry: [String: Any] = [
             "scripture": scripture,
-            "date": Timestamp(date: Date()),  // 현재 날짜를 자동으로 저장
+            "date": date,
             "content": content,
             "prayerTitle": prayerTitle
-        ] as [String : Any]
+        ]
 
-        db.collection("diaries").document(userId).collection("entries").addDocument(data: diaryEntry) { error in
-            if let error = error {
-                print("일기 저장 실패: \(error)")
-            } else {
-                print("일기 저장 성공!")
-            }
+        // docId가 존재하면 기존 문서를 업데이트,
+        // 없다면 새로운 문서를 생성
+        if docId != "" {
+            db.collection("diaries")
+                .document(userId)
+                .collection("entries")
+                .document(docId)
+                .updateData(diaryEntry) { error in
+                    if let error = error {
+                        print("일기 수정 실패: \(error)")
+                    } else {
+                        print("일기 수정 성공!")
+                    }
+                }
+        } else {
+            db.collection("diaries")
+                .document(userId)
+                .collection("entries")
+                .addDocument(data: diaryEntry) { error in
+                    if let error = error {
+                        print("새 일기 저장 실패: \(error)")
+                    } else {
+                        print("새 일기 저장 성공!")
+                    }
+                }
         }
     }
     

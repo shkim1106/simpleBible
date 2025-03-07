@@ -12,9 +12,10 @@ struct WelcomePage: View {
     @Binding var showNewEntryForm: Bool
     
     @EnvironmentObject var firebaseVM: FirebaseVM  // ViewModel 인스턴스를 사용
+    @EnvironmentObject var viewModel: BibleVM
     
-    @StateObject private var viewModel = BibleVM()
     @StateObject var kakaoAuthVM: KakaoAuthVM = KakaoAuthVM()
+    
     
     @State private var isCopied: Bool = false
     @State private var showInterpretation: Bool = false
@@ -98,12 +99,15 @@ struct WelcomePage: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
+                .padding(.top)
                 
                 // 오늘의 말씀 카드
                 VStack(alignment: .leading, spacing: 10) {
                     if let randomVerse = viewModel.randomVerse {
                         let verseTitle = "\(randomVerse.book.kor) \(randomVerse.chapter)장 \(randomVerse.verse)절"
                         let verseContent = randomVerse.content.substring(after: "\(randomVerse.chapter):\(randomVerse.verse) ")
+                        
+                        
                         HStack {
                             Text(verseTitle)
                                 .font(.title2)
@@ -201,8 +205,15 @@ struct WelcomePage: View {
                     HStack(spacing: 10) {
                         Button(action: {
                             // 예) 묵상 기록 페이지로 이동할 액션
-                            selectedTab = 2
-                            showNewEntryForm = true
+                            viewModel.selectedVerse = "\(currentVerse.book.kor) \(currentVerse.chapter)장 \(currentVerse.verse)절"
+                            print("\(viewModel.selectedVerse) 로 묵상을 기록합니다.")
+                            withAnimation {
+                                selectedTab = 2
+
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                showNewEntryForm.toggle()
+                            }
                         }) {
                             Text("묵상 기록하기")
                                 .fontWeight(.medium)
@@ -240,11 +251,14 @@ struct WelcomePage: View {
                 //                }
                 Spacer()
             }
-            .navigationTitle("큐티한 나")
-            .navigationBarTitleDisplayMode(.inline)
+//            .navigationTitle("오늘의 말씀")
+//            .navigationBarTitleDisplayMode(.inline)
             .onAppear(perform: {
                 if currentVerse.chapter == 0 {
                     viewModel.getRandomBibleVerse()
+                }
+                else {
+                    viewModel.selectedVerse = "\(currentVerse.book.kor) \(currentVerse.chapter)장 \(currentVerse.verse)절"
                 }
                 if !kakaoAuthVM.isLoggedIn {
                     kakaoAuthVM.autoLogin()
