@@ -100,5 +100,5 @@ iOSInjectionProject/
 
 # End of https://www.toptal.com/developers/gitignore/api/xcode,swift
 
-*.xcconfig
-*.plist
+/*.xcconfig
+/*.plist
