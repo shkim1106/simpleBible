@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1E348E572DAFCCE4008C600B /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 1E348E4E2DAFCCE4008C600B /* Config.xcconfig */; };
+		1E348E582DAFCCE4008C600B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E348E4F2DAFCCE4008C600B /* GoogleService-Info.plist */; };
 		1EDAA4F12D530C8E00BDB9CA /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1EDAA4F02D530C8E00BDB9CA /* KakaoSDK */; };
 		1EDAA4F82D53105800BDB9CA /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 1EDAA4F72D53105800BDB9CA /* .gitignore */; };
 		1EDAE0652D5A59160035DDC6 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1EDAE0642D5A59160035DDC6 /* FirebaseAnalytics */; };
@@ -25,6 +27,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1E348E4E2DAFCCE4008C600B /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		1E348E4F2DAFCCE4008C600B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1E6A13F32D4D2B6200A8DB28 /* simpleBible.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = simpleBible.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EDAA4F72D53105800BDB9CA /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -81,6 +85,8 @@
 				1EDAA4F72D53105800BDB9CA /* .gitignore */,
 				1E6A13F52D4D2B6200A8DB28 /* simpleBible */,
 				1E6A13F42D4D2B6200A8DB28 /* Products */,
+				1E348E4E2DAFCCE4008C600B /* Config.xcconfig */,
+				1E348E4F2DAFCCE4008C600B /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -174,6 +180,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E348E572DAFCCE4008C600B /* Config.xcconfig in Resources */,
+				1E348E582DAFCCE4008C600B /* GoogleService-Info.plist in Resources */,
 				1EDAA4F82D53105800BDB9CA /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -193,8 +201,7 @@
 /* Begin XCBuildConfiguration section */
 		1E6A13FF2D4D2B6300A8DB28 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 1E6A13F52D4D2B6200A8DB28 /* simpleBible */;
-			baseConfigurationReferenceRelativePath = Config.xcconfig;
+			baseConfigurationReference = 1E348E4E2DAFCCE4008C600B /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -258,8 +265,7 @@
 		};
 		1E6A14002D4D2B6300A8DB28 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 1E6A13F52D4D2B6200A8DB28 /* simpleBible */;
-			baseConfigurationReferenceRelativePath = Config.xcconfig;
+			baseConfigurationReference = 1E348E4E2DAFCCE4008C600B /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -316,8 +322,7 @@
 		};
 		1E6A14022D4D2B6300A8DB28 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 1E6A13F52D4D2B6200A8DB28 /* simpleBible */;
-			baseConfigurationReferenceRelativePath = Config.xcconfig;
+			baseConfigurationReference = 1E348E4E2DAFCCE4008C600B /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -354,8 +359,7 @@
 		};
 		1E6A14032D4D2B6300A8DB28 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 1E6A13F52D4D2B6200A8DB28 /* simpleBible */;
-			baseConfigurationReferenceRelativePath = Config.xcconfig;
+			baseConfigurationReference = 1E348E4E2DAFCCE4008C600B /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

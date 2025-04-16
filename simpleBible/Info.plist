@@ -3,11 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>UIAppFonts</key>
-	<array>
-		<string>Maplestory OTF Light.otf</string>
-		<string>Maplestory OTF Bold.otf</string>
-		<string>Pretendard-Regular.otf</string>
-	</array>
+	<array/>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
